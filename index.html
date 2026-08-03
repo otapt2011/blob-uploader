@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vercel Blob Uploader</title>
+    <style>
+        body { padding: 20px; font-family: sans-serif; background: #111; color: #eee; }
+        input, button { padding: 12px; border-radius: 6px; border: none; margin: 8px 0; width: 100%; box-sizing: border-box; }
+        button { background: #057c94; color: #fff; font-weight: bold; cursor: pointer; }
+        button:disabled { opacity: 0.6; }
+        #result { margin-top: 20px; }
+        #result a { color: #22d3ee; word-break: break-all; }
+    </style>
+</head>
+<body>
+    <h2>Upload a File</h2>
+    
+    <input type="file" id="fileInput" />
+    <button id="uploadBtn">Upload File</button>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('uploadBtn').addEventListener('click', async () => {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            if (!file) return alert("Please select a file first.");
+
+            const btn = document.getElementById('uploadBtn');
+            btn.textContent = "Uploading...";
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
+                    method: 'POST',
+                    body: file
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Upload failed');
+                }
+
+                const blobData = await response.json();
+                
+                document.getElementById('result').innerHTML = `
+                    <p style="color: #4ade80;">✅ Upload successful!</p>
+                    <a href="/api/view?pathname=${blobData.pathname}" target="_blank">🔗 View / Download file</a>
+                `;
+            } catch (error) {
+                alert("Error: " + error.message);
+            } finally {
+                btn.textContent = "Upload File";
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

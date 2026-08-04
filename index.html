@@ -7,6 +7,7 @@
     <style>
         body { padding: 20px; font-family: sans-serif; background: #111; color: #eee; }
         input, button { padding: 12px; border-radius: 6px; border: none; margin: 8px 0; width: 100%; box-sizing: border-box; }
+        #tokenInput { background: #222; color: #fff; border: 1px solid #444; font-size: 12px; word-break: break-all;}
         button { background: #057c94; color: #fff; font-weight: bold; cursor: pointer; }
         button:disabled { opacity: 0.6; }
         #result { margin-top: 20px; }
@@ -15,6 +16,9 @@
 </head>
 <body>
     <h2>Upload a File</h2>
+    
+    <!-- New Token Input Field -->
+    <input type="text" id="tokenInput" placeholder="Paste your vercel_blob_rw_... token here" />
     
     <input type="file" id="fileInput" />
     <button id="uploadBtn">Upload File</button>
@@ -27,12 +31,17 @@
             const file = fileInput.files[0];
             if (!file) return alert("Please select a file first.");
 
+            // Get the token from the input field
+            const token = document.getElementById('tokenInput').value.trim();
+            if (!token) return alert("Please paste your token first.");
+
             const btn = document.getElementById('uploadBtn');
             btn.textContent = "Uploading...";
             btn.disabled = true;
 
             try {
-                const response = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
+                // Send token as a query parameter (adds ?token=... to the URL)
+                const response = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}&token=${encodeURIComponent(token)}`, {
                     method: 'POST',
                     body: file
                 });
@@ -46,7 +55,7 @@
                 
                 document.getElementById('result').innerHTML = `
                     <p style="color: #4ade80;">✅ Upload successful!</p>
-                    <a href="/api/view?pathname=${blobData.pathname}" target="_blank">🔗 View / Download file</a>
+                    <a href="/api/view?pathname=${blobData.pathname}&token=${encodeURIComponent(token)}" target="_blank">🔗 View / Download file</a>
                 `;
             } catch (error) {
                 alert("Error: " + error.message);

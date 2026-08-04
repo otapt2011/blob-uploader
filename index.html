@@ -458,9 +458,14 @@
 
                 let html = '';
                 imageBlobs.forEach(f => {
+                    // Encode the pathname to prevent URL breaking
+                    const safePath = encodeURIComponent(f.pathname);
                     html += `
-                        <div class="aspect-square bg-white/5 border border-white/10 rounded-md overflow-hidden relative cursor-pointer hover:scale-[1.02] hover:border-cyan-400/50 transition-transform duration-200" onclick="window.open('/api/view?pathname=${f.pathname}', '_blank')">
-                            <img src="/api/view?pathname=${f.pathname}" alt="${f.pathname}" loading="lazy" class="w-full h-full object-cover" />
+                        <div class="aspect-square bg-white/5 border border-white/10 rounded-md overflow-hidden relative cursor-pointer hover:scale-[1.02] hover:border-cyan-400/50 transition-transform duration-200" onclick="window.open('/api/view?pathname=${safePath}', '_blank')">
+                            <img src="/api/view?pathname=${safePath}" 
+                                 alt="${f.pathname}" 
+                                 class="w-full h-full object-cover"
+                                 onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'flex items-center justify-center w-full h-full text-white/40 text-xs\'><i class=\'fa-solid fa-image fa-2x\'></i></div>'" />
                             <div class="absolute bottom-0 left-0 right-0 bg-black/70 px-2 py-1 text-[8px] text-white/80 truncate whitespace-nowrap overflow-hidden text-ellipsis">${f.pathname}</div>
                         </div>
                     `;

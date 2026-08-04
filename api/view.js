@@ -1,17 +1,20 @@
-import { BlobClient } from '@vercel/blob';
+import { get } from '@vercel/blob';
+
+const TOKEN = "vercel_blob_rw_2R41OxKmYZk4u3TO_AibX9MaGZWlw9A4PK47lzcxY24kAp6"; 
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const pathname = searchParams.get("pathname");
-  const token = searchParams.get("token"); // We receive the token from the HTML
 
-  if (!pathname || !token) {
-    return Response.json({ error: "Missing pathname or token" }, { status: 400 });
+  if (!pathname) {
+    return Response.json({ error: "Missing pathname" }, { status: 400 });
   }
 
   try {
-    const client = new BlobClient({ token });
-    const result = await client.get(pathname);
+    const result = await get(pathname, {
+      access: 'private', // ✅ Matches upload.js
+      token: TOKEN,
+    });
 
     if (!result) {
       return new Response("Not found", { status: 404 });

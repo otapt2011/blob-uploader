@@ -1,5 +1,6 @@
 import { get } from '@vercel/blob';
 
+// Use the exact same token you have in upload.js!
 const TOKEN = "vercel_blob_rw_Gk9GPvdVvphlILt6_6kTmdBNw8NuEjPvsJroF9cBitGsiIt"; 
 
 export async function GET(request) {
@@ -11,22 +12,24 @@ export async function GET(request) {
   }
 
   try {
+    // We will use access: 'public' to perfectly match your upload.js
     const result = await get(pathname, {
-      access: 'public', // ✅ Matches upload.js
+      access: 'public',
       token: TOKEN,
     });
 
     if (!result) {
-      return new Response("Not found", { status: 404 });
+      return new Response("File not found", { status: 404 });
     }
 
-    const headers = new Headers();
-    headers.set("Cache-Control", "private, no-cache");
-    headers.set("Content-Type", result.blob.contentType);
-    headers.set("X-Content-Type-Options", "nosniff");
-
-    return new Response(result.stream, { headers });
+    return new Response(result.stream, {
+      headers: {
+        "Cache-Control": "public, max-age=31536000, immutable",
+        "Content-Type": result.blob.contentType,
+      },
+    });
   } catch (error) {
-    return new Response("Error fetching file", { status: 500 });
+    // This catch block prevents the 500 crash! It returns a clean error message instead.
+    return new Response("Error fetching file: " + error.message, { status: 500 });
   }
 }

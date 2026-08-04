@@ -1,25 +1,30 @@
 import { get } from '@vercel/blob';
 
-const TOKEN = "vercel_blob_rw_Gk9GPvdVvphlILt6_XVlPuoRJdeLPvS73Roqhx3c5KCIfye"; 
+// 👇 Use exactly the same token as in list.js
+const TOKEN = "vercel_blob_rw_Gk9GPvdVvphlILt6_XVlPuoRJdeLPvS73Roqhx3c5KCIfye";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const pathname = searchParams.get("pathname");
+  const cb = searchParams.get("cb"); // cache buster, optional
 
   if (!pathname) {
-    return Response.json({ error: "Missing pathname" }, { status: 400 });
+    return new Response("Missing pathname", { status: 400 });
   }
 
   try {
-    // ✅ FIXED: Removed 'access: "public"' because get() does not accept it.
     const result = await get(pathname, {
       token: TOKEN,
+      // If your files are public, no 'access' needed.
+      // If they are private, uncomment the line below:
+      // access: 'private',
     });
 
     if (!result) {
       return new Response("File not found", { status: 404 });
     }
 
+    // Stream the file
     return new Response(result.stream, {
       headers: {
         "Cache-Control": "public, max-age=31536000, immutable",
@@ -27,6 +32,7 @@ export async function GET(request) {
       },
     });
   } catch (error) {
-    return new Response("Error fetching file: " + error.message, { status: 500 });
+    // Return error as plain text so it shows in the image placeholder
+    return new Response(`Error: ${error.message}`, { status: 500 });
   }
 }

@@ -1,13 +1,10 @@
 import { list } from '@vercel/blob';
 
-// Use the exact same token you used in upload.js and view.js
-const TOKEN = "vercel_blob_rw_Gk9GPvdVvphlILt6_6kTmdBNw8NuEjPvsJroF9cBitGsiIt"; 
-
 export async function GET(request) {
   try {
-    // Fetch the list of files (default limit is 50, you can add "limit: 100" if needed)
+    // 👇 Read the token securely from the environment
     const { blobs, cursor } = await list({
-      token: TOKEN,
+      token: process.env.BLOB_READ_WRITE_TOKEN,
     });
 
     return Response.json({ blobs, cursor });

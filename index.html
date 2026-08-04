@@ -8,6 +8,7 @@
         body { padding: 20px; font-family: sans-serif; background: #111; color: #eee; }
         input, button { padding: 12px; border-radius: 6px; border: none; margin: 8px 0; width: 100%; box-sizing: border-box; }
         button { background: #057c94; color: #fff; font-weight: bold; cursor: pointer; }
+        button:disabled { opacity: 0.6; }
         #result { margin-top: 20px; }
         #result a { color: #22d3ee; word-break: break-all; }
     </style>
@@ -20,41 +21,42 @@
 
     <div id="result"></div>
 
-    <!-- 1. Define where the browser can find the Vercel Blob Client -->
-    <script type="importmap">
-        {
-            "imports": {
-                "@vercel/blob/client": "https://esm.sh/@vercel/blob/client@0.24.0"
-            }
-        }
-    </script>
-
-    <!-- 2. The main script that uses the client SDK -->
-    <script type="module">
-        import { upload } from '@vercel/blob/client';
-
-        document.getElementById('uploadBtn').addEventListener('click', async () => {
+    <!-- One single script, no importmap, dynamic import inside the click handler -->
+    <script>
+        document.getElementById('uploadBtn').addEventListener('click', async function() {
             const fileInput = document.getElementById('fileInput');
             const file = fileInput.files[0];
-            if (!file) return alert("Please select a file first.");
+            if (!file) {
+                alert("Please select a file first.");
+                return;
+            }
 
-            const btn = document.getElementById('uploadBtn');
-            btn.textContent = "Uploading...";
+            const btn = this;
+            btn.textContent = "Loading library...";
             btn.disabled = true;
 
             try {
-                // ✅ The SDK automatically does the preflight request to /api/upload
+                // Dynamically load the Vercel Blob Client from a reliable CDN
+                const module = await import('https://cdn.jsdelivr.net/npm/@vercel/blob@0.24.0/client.js');
+                const { upload } = module;
+
+                btn.textContent = "Uploading...";
+                
+                // Call the client upload function
                 const blob = await upload(file.name, file, {
                     access: 'public',
-                    handleUploadUrl: '/api/upload', // Matches your backend endpoint
+                    handleUploadUrl: '/api/upload',
                 });
 
+                // Show success
                 document.getElementById('result').innerHTML = `
                     <p style="color: #4ade80;">✅ Upload successful!</p>
                     <a href="${blob.url}" target="_blank">🔗 View / Download file</a>
                 `;
+
             } catch (error) {
-                alert("Error: " + error.message);
+                // If anything breaks (network, CDN, backend, token), this alert will pop up!
+                alert("Error: " + (error.message || "Unknown error occurred."));
             } finally {
                 btn.textContent = "Upload File";
                 btn.disabled = false;

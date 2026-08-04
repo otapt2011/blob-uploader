@@ -17,6 +17,6 @@ export async function POST(request) {
     // The SDK returns the exact JSON object the frontend expects
     return Response.json(blob);
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: error.message || "Unknown upload error", stack: error.stack }, { status: 500 });
   }
 }

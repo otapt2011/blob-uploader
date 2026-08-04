@@ -47,11 +47,17 @@
                 }
 
                 const data = await response.json();
+
+
+
+
+// To this (using the /api/view endpoint):
+document.getElementById('result').innerHTML = `
+    <p style="color: #4ade80;">✅ Upload successful!</p>
+    <a href="/api/view?pathname=${data.pathname}" target="_blank">🔗 View / Download file</a>
+`;
                 
-                document.getElementById('result').innerHTML = `
-                    <p style="color: #4ade80;">✅ Upload successful!</p>
-                    <a href="${data.url}" target="_blank">🔗 View / Download file</a>
-                `;
+                
             } catch (error) {
                 alert("Error: " + error.message);
             } finally {

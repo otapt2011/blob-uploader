@@ -12,7 +12,7 @@ export async function POST(request) {
 
   try {
     const blob = await put(filename, request.body, {
-      access: 'private', // ✅ Changed to private
+      access: 'public', // ✅ Changed to private
       token: TOKEN,
     });
     // Return pathname, not url, because private URLs aren't public.

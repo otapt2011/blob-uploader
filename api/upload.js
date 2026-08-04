@@ -5,17 +5,21 @@ const TOKEN = "vercel_blob_rw_Gk9GPvdVvphlILt6_6kTmdBNw8NuEjPvsJroF9cBitGsiIt";
 export async function POST(request) {
   const { searchParams } = new URL(request.url);
   const filename = searchParams.get("filename");
+  const folder = searchParams.get("folder"); // New parameter
 
   if (!filename) {
     return Response.json({ error: "Missing filename" }, { status: 400 });
   }
 
+  // Prepare the full path. If a folder is provided, put a slash between it and the filename.
+  const cleanFolder = folder ? folder.replace(/^\/|\/$/g, '') : ''; // Remove leading/trailing slashes
+  const fullPath = cleanFolder ? `${cleanFolder}/${filename}` : filename;
+
   try {
-    const blob = await put(filename, request.body, {
-      access: 'public', // ✅ Changed to private
+    const blob = await put(fullPath, request.body, { // Use fullPath instead of filename
+      access: 'public',
       token: TOKEN,
     });
-    // Return pathname, not url, because private URLs aren't public.
     return Response.json({ pathname: blob.pathname });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

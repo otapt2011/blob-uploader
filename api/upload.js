@@ -1,7 +1,7 @@
 import { put } from '@vercel/blob';
 
 // ✅ Hardcode your token here. No more dashboard errors!
-const TOKEN = "vercel_blob_rw_2R41OxKmYZk4u3TO_AibX9MaGZWlw9A4PK47lzcxY24kAp6"; 
+const TOKEN = "vercel_blob_rw_Gk9GPvdVvphlILt6_6kTmdBNw8NuEjPvsJroF9cBitGsiIt"; 
 
 export async function POST(request) {
   const { searchParams } = new URL(request.url);

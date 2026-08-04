@@ -1,7 +1,7 @@
 import { list } from '@vercel/blob';
 
 // 👇 PASTE YOUR EXACT SAME TOKEN HERE
-const TOKEN = "vercel_blob_rw_Gk9GPvdVvphlILt6_6kTmdBNw8NuEjPvsJroF9cBitGsiIt"; 
+const TOKEN = "vercel_blob_rw_Gk9GPvdVvphlILt6_XVlPuoRJdeLPvS73Roqhx3c5KCIfye"; 
 
 export async function GET(request) {
   try {

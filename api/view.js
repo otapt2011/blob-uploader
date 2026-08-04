@@ -1,6 +1,6 @@
 import { get } from '@vercel/blob';
 
-const TOKEN = "vercel_blob_rw_2R41OxKmYZk4u3TO_AibX9MaGZWlw9A4PK47lzcxY24kAp6"; 
+const TOKEN = "vercel_blob_rw_Gk9GPvdVvphlILt6_6kTmdBNw8NuEjPvsJroF9cBitGsiIt"; 
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);

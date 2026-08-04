@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -21,7 +21,6 @@
 
     <div id="result"></div>
 
-    <!-- One single script, no importmap, dynamic import inside the click handler -->
     <script>
         document.getElementById('uploadBtn').addEventListener('click', async function() {
             const fileInput = document.getElementById('fileInput');
@@ -32,31 +31,29 @@
             }
 
             const btn = this;
-            btn.textContent = "Loading library...";
+            btn.textContent = "Uploading...";
             btn.disabled = true;
 
             try {
-                // Dynamically load the Vercel Blob Client from a reliable CDN
-                const module = await import('https://cdn.jsdelivr.net/npm/@vercel/blob@0.24.0/client.js');
-                const { upload } = module;
-
-                btn.textContent = "Uploading...";
-                
-                // Call the client upload function
-                const blob = await upload(file.name, file, {
-                    access: 'public',
-                    handleUploadUrl: '/api/upload',
+                // Pure native fetch - NO MODULE IMPORTS AT ALL
+                const response = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
+                    method: 'POST',
+                    body: file
                 });
 
-                // Show success
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Upload failed');
+                }
+
+                const data = await response.json();
+                
                 document.getElementById('result').innerHTML = `
                     <p style="color: #4ade80;">✅ Upload successful!</p>
-                    <a href="${blob.url}" target="_blank">🔗 View / Download file</a>
+                    <a href="${data.url}" target="_blank">🔗 View / Download file</a>
                 `;
-
             } catch (error) {
-                // If anything breaks (network, CDN, backend, token), this alert will pop up!
-                alert("Error: " + (error.message || "Unknown error occurred."));
+                alert("Error: " + error.message);
             } finally {
                 btn.textContent = "Upload File";
                 btn.disabled = false;

@@ -1,7 +1,7 @@
 import { del } from '@vercel/blob';
 
 // Use the exact same token you used in upload.js, view.js, and list.js
-const TOKEN = "vercel_blob_rw_Gk9GPvdVvphlILt6_6kTmdBNw8NuEjPvsJroF9cBitGsiIt"; 
+const TOKEN = "vercel_blob_rw_Gk9GPvdVvphlILt6_XVlPuoRJdeLPvS73Roqhx3c5KCIfye"; 
 
 export async function DELETE(request) {
   const { searchParams } = new URL(request.url);

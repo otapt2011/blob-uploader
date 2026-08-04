@@ -449,7 +449,9 @@
                 const response = await fetch('/api/list');
                 if (!response.ok) throw new Error('Failed to load list');
                 const data = await response.json();
-                const imageBlobs = (data.blobs || []).filter(f => f.contentType && f.contentType.startsWith('image/'));
+                const imageBlobs = (data.blobs || []).filter(f => 
+                    f.contentType && f.contentType.toLowerCase().startsWith('image/')
+                );
 
                 if (imageBlobs.length === 0) {
                     container.innerHTML = '<div class="col-span-full text-white/40 text-center py-2 text-[9px]">No images found.</div>';
@@ -458,21 +460,32 @@
 
                 let html = '';
                 imageBlobs.forEach(f => {
-                    // Encode the pathname to prevent URL breaking
                     const safePath = encodeURIComponent(f.pathname);
+                    const cacheBuster = Date.now();
                     html += `
                         <div class="aspect-square bg-white/5 border border-white/10 rounded-md overflow-hidden relative cursor-pointer hover:scale-[1.02] hover:border-cyan-400/50 transition-transform duration-200" onclick="window.open('/api/view?pathname=${safePath}', '_blank')">
-                            <img src="/api/view?pathname=${safePath}" 
-                                 alt="${f.pathname}" 
+                            <!-- Image element with error handling -->
+                            <img src="/api/view?pathname=${safePath}&cb=${cacheBuster}"
+                                 alt="${f.pathname}"
+                                 loading="lazy"
                                  class="w-full h-full object-cover"
-                                 onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'flex items-center justify-center w-full h-full text-white/40 text-xs\'><i class=\'fa-solid fa-image fa-2x\'></i></div>'" />
-                            <div class="absolute bottom-0 left-0 right-0 bg-black/70 px-2 py-1 text-[8px] text-white/80 truncate whitespace-nowrap overflow-hidden text-ellipsis">${f.pathname}</div>
+                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            
+                            <!-- Error display (hidden by default) -->
+                            <div class="hidden absolute inset-0 items-center justify-center text-red-400 text-[8px] text-center px-1 bg-black/80">
+                                <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+                                <span>Failed to load</span>
+                            </div>
+
+                            <!-- Filename overlay -->
+                            <div class="absolute bottom-0 left-0 right-0 bg-black/70 px-2 py-1 text-[8px] text-white/80 truncate">${f.pathname}</div>
                         </div>
                     `;
                 });
                 container.innerHTML = html;
             } catch (error) {
                 container.innerHTML = `<div class="col-span-full text-red-400 text-center py-2 text-[9px]">Error: ${error.message}</div>`;
+                showToast("Error loading gallery: " + error.message, "error");
             }
         }
         document.getElementById('gallery-refresh-btn').addEventListener('click', loadGallery);

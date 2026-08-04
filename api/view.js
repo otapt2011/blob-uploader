@@ -1,4 +1,4 @@
-const STORE_URL = "https://2r41oxkmyzk4u3to.private.blob.vercel-storage.com";
+const STORE_URL = "https://2r41oxkmyzk4u3to.vercel.app";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);

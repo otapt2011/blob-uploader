@@ -12,7 +12,7 @@ export async function GET(request) {
 
   try {
     const result = await get(pathname, {
-      access: 'private', // ✅ Matches upload.js
+      access: 'public', // ✅ Matches upload.js
       token: TOKEN,
     });
 

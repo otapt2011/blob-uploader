@@ -441,51 +441,42 @@
         });
 
         // 4. Gallery View (Fully Tailwind Converted)
+        // 4. Gallery View (Ultra-Simple Debug Version)
         async function loadGallery() {
             const container = document.getElementById('gallery-container');
-            container.innerHTML = '<div class="col-span-full text-white/40 text-center py-2 text-[9px]">Loading...</div>';
+            
+            // 1. Force a literal text message to appear to prove the function started
+            container.innerHTML = '<div class="col-span-full text-cyan-300 text-center py-2 text-[10px]">✅ Gallery function is running...</div>';
 
             try {
                 const response = await fetch('/api/list');
-                if (!response.ok) throw new Error('Failed to load list');
+                if (!response.ok) throw new Error('API list failed');
                 const data = await response.json();
-                const imageBlobs = (data.blobs || []).filter(f => 
-                    f.contentType && f.contentType.toLowerCase().startsWith('image/')
-                );
+                
+                const totalFiles = data.blobs?.length || 0;
+                // 2. Write how many files we found to the screen
+                container.innerHTML = `<div class="col-span-full text-white text-center py-2 text-[10px]">📁 Found ${totalFiles} total files.</div>`;
+
+                const imageBlobs = (data.blobs || []).filter(f => f.contentType?.toLowerCase().startsWith('image/'));
+                // 3. Write how many images we found
+                container.innerHTML += `<div class="col-span-full text-cyan-200 text-center py-2 text-[10px]">🖼️ Found ${imageBlobs.length} images.</div>`;
 
                 if (imageBlobs.length === 0) {
-                    container.innerHTML = '<div class="col-span-full text-white/40 text-center py-2 text-[9px]">No images found.</div>';
+                    container.innerHTML += `<div class="col-span-full text-white/40 text-center py-2 text-[10px]">No images to display.</div>`;
                     return;
                 }
 
-                let html = '';
-                imageBlobs.forEach(f => {
-                    const safePath = encodeURIComponent(f.pathname);
-                    const cacheBuster = Date.now();
-                    html += `
-                        <div class="aspect-square bg-white/5 border border-white/10 rounded-md overflow-hidden relative cursor-pointer hover:scale-[1.02] hover:border-cyan-400/50 transition-transform duration-200" onclick="window.open('/api/view?pathname=${safePath}', '_blank')">
-                            <!-- Image element with error handling -->
-                            <img src="/api/view?pathname=${safePath}&cb=${cacheBuster}"
-                                 alt="${f.pathname}"
-                                 loading="lazy"
-                                 class="w-full h-full object-cover"
-                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                            
-                            <!-- Error display (hidden by default) -->
-                            <div class="hidden absolute inset-0 items-center justify-center text-red-400 text-[8px] text-center px-1 bg-black/80">
-                                <i class="fa-solid fa-triangle-exclamation mr-1"></i>
-                                <span>Failed to load</span>
-                            </div>
-
-                            <!-- Filename overlay -->
-                            <div class="absolute bottom-0 left-0 right-0 bg-black/70 px-2 py-1 text-[8px] text-white/80 truncate">${f.pathname}</div>
-                        </div>
-                    `;
+                // 4. Just show the file names as simple text boxes (NO IMAGE LOADING!)
+                let html = `<div class="col-span-full grid grid-cols-2 gap-1 mt-1">`;
+                imageBlobs.forEach((f) => {
+                    html += `<div class="bg-white/5 border border-white/10 rounded p-1 text-[9px] text-white/80 truncate">${f.pathname}</div>`;
                 });
-                container.innerHTML = html;
+                html += `</div>`;
+                container.innerHTML += html;
+
             } catch (error) {
-                container.innerHTML = `<div class="col-span-full text-red-400 text-center py-2 text-[9px]">Error: ${error.message}</div>`;
-                showToast("Error loading gallery: " + error.message, "error");
+                // This will catch any crash and show it on screen
+                container.innerHTML = `<div class="col-span-full text-red-400 text-center py-2 text-[10px]">❌ CRASH: ${error.message}</div>`;
             }
         }
         document.getElementById('gallery-refresh-btn').addEventListener('click', loadGallery);
